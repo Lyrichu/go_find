@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strings"
 	"sync"
 )
 
@@ -27,18 +28,24 @@ type Finder struct {
 func NewFinder(pattern string, fileType string) *Finder {
 	var reg *regexp.Regexp
 	if pattern != "" {
-		// 将通配符 * 转换为正则表达式的 .*
-		regexPattern := ""
-		for i := 0; i < len(pattern); i++ {
-			if pattern[i] == '*' {
-				regexPattern += ".*"
-			} else {
-				// 转义其他正则表达式的特殊字符
-				regexPattern += regexp.QuoteMeta(string(pattern[i]))
+		// 如果模式中包含 | 字符，说明是多模式匹配
+		if strings.Contains(pattern, "|") {
+			// 直接使用用户提供的正则表达式
+			reg = regexp.MustCompile(pattern)
+		} else {
+			// 将通配符 * 转换为正则表达式的 .*
+			regexPattern := ""
+			for i := 0; i < len(pattern); i++ {
+				if pattern[i] == '*' {
+					regexPattern += ".*"
+				} else {
+					// 转义其他正则表达式的特殊字符
+					regexPattern += regexp.QuoteMeta(string(pattern[i]))
+				}
 			}
+			// 添加开始和结束标记以确保完整匹配
+			reg = regexp.MustCompile("^" + regexPattern + "$")
 		}
-		// 添加开始和结束标记以确保完整匹配
-		reg = regexp.MustCompile("^" + regexPattern + "$")
 	}
 
 	// 检查是否支持颜色输出

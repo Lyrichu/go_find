@@ -49,6 +49,9 @@ go build -o go_find cmd/go_find/main.go
 # 示例：在指定目录下搜索所有名称中含有 "test" 的目录
 ./go_find -name test -type d /path/to/search
 
+# 示例：同时搜索 .txt 和 .jpg 文件（使用正则表达式或运算符）
+./go_find -name ".*\.txt$|.*\.jpg$" .
+
 ```
 
 ## 选项说明
